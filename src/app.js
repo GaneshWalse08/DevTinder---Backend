@@ -3,8 +3,8 @@ const connectDB = require("./config/database");
 const cookieParser = require('cookie-parser');
 
 const authRouter = require("./routes/auth");
-const profileRouter = require("./routes/auth");
-const requestRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const requestRouter = require("./routes/requests");
 
 const app = express();
 

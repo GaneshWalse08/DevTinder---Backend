@@ -6,6 +6,37 @@ const bcrypt = require('bcrypt');
 
 const authRouter = express.Router();
 
+authRouter.post("/signup", async (req, res) => {
+
+  try {
+
+  // Validate the user 
+
+  validateSignUpData(req);
+
+  // Encrypt the password
+
+  const {firstName, lastName, emailId, password, age, gender} = req.body;
+
+  const hashPassword = await bcrypt.hash(password, 10);
+
+  //Create the instance of the User and save
+
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: hashPassword,
+      age,
+      gender
+    });
+
+    await user.save();
+    res.send("User added!");
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+});
 
 authRouter.post("/login", async(req,res) => {
   try{
@@ -39,36 +70,24 @@ authRouter.post("/login", async(req,res) => {
   }
 })
 
-authRouter.post("/signup", async (req, res) => {
+authRouter.post("/logout", (req,res) => {
+  try{
 
-  try {
+    const {token} = req.cookies;
 
-  // Validate the user 
+    res.cookie("token", token, {
+      expires: new Date(Date.now())
+    })
 
-  validateSignUpData(req);
-
-  // Encrypt the password
-
-  const {firstName, lastName, emailId, password, age, gender} = req.body;
-
-  const hashPassword = await bcrypt.hash(password, 10);
-
-  //Create the instance of the User and save
-
-    const user = new User({
-      firstName,
-      lastName,
-      emailId,
-      password: hashPassword,
-      age,
-      gender
-    });
-
-    await user.save();
-    res.send("User added!");
-  } catch (err) {
-    res.status(400).send(err.message);
+  // res.clearCookie("token");
+  
+  res.send("Logout Successful...");
+  
+} catch(err){
+    res.send(err.message);
   }
-});
+} );
+
+
 
 module.exports = authRouter;
