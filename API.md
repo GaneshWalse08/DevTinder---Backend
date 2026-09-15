@@ -27,5 +27,5 @@
 
 # User Router
 - GET /user/connections
-- GET /user/request/received
+- GET /user/requests/received
 - GET /user/feed

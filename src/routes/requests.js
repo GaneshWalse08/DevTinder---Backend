@@ -23,7 +23,7 @@ requestRouter.post(
       const checkTOUserId = await User.findById(toUserId);
 
       if (!checkTOUserId) {
-       return res.status(400).send("user does not exists!");
+        return res.status(400).send("user does not exists!");
       }
 
       const allowedStatus = ["ignored", "interested"];
@@ -64,6 +64,44 @@ requestRouter.post(
       }
     } catch (err) {
       res.send(err.message);
+    }
+  },
+);
+
+requestRouter.post(
+  "/request/review/:status/:requestId",
+  userAuth,
+  async (req, res) => {
+    try {
+      const { status, requestId } = req.params;
+      const loggedInUser = req.user;
+
+      const allowedStatus = ["accepted", "rejected"];
+
+      if (!allowedStatus.includes(status)) {
+        throw new Error("Invalid Status");
+      }
+
+      const connectionRequest = await ConnectionRequest.findOne({
+        _id: requestId,
+        toUserId: loggedInUser._id,
+        status: "interested",
+      });
+
+      if (!connectionRequest) {
+        return res.status(400).send("No such connection request!!");
+      }
+
+      connectionRequest.status = status;
+
+      const data = await connectionRequest.save();
+
+      res.json({
+        message: "Updated the connection Request Status",
+        data,
+      });
+    } catch (err) {
+      res.status(400).send(err.message);
     }
   },
 );
