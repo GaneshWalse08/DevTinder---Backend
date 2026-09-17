@@ -15,10 +15,10 @@ const userAuth = async (req, res, next) => {
   const {token} = cookie;
 
   if(!token){
-    throw new Error("Invalid Token!");
+    return res.status(401).send("Please Login!");
   }
 
-  const decodedMsg = jwt.verify(token, "DevTinder@Ganesh$08");
+  const decodedMsg = jwt.verify(token, JWT_SECRET_KEY);
 
   const {_id} = decodedMsg;
 
@@ -35,7 +35,7 @@ const userAuth = async (req, res, next) => {
   next();
   }
   catch(err){
-    res.send(err.message);
+    res.status(401).send(err.message);
   }
 }
 
