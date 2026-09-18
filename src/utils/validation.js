@@ -1,7 +1,7 @@
 const validator = require("validator");
 
 const validateSignUpData = (req) => {
-  const {firstName, lastName, emailId, password} = req.body;
+  const {firstName, lastName, emailId, password, photoUrl, githubUrl, linkedinUrl} = req.body;
 
   if(!firstName || !lastName){
     throw new Error("Name is not Valid!");
@@ -12,11 +12,20 @@ const validateSignUpData = (req) => {
   else if(!validator.isStrongPassword(password)){
     throw new Error("Enter a Strong Password....");
   }
+  else if(photoUrl && !validator.isURL(photoUrl)){
+    throw new Error("Invalid Photo Url");
+  }
+  else if(linkedinUrl && !validator.isURL(linkedinUrl)){
+    throw new Error("Invalid LinkedIn Profile");
+  }
+  else if(githubUrl && !validator.isURL(githubUrl)){
+    throw new Error("Invalid github Url");
+  }
 }
 
 const validateEditProfileData = (req) => {
 
-  const allowedEditFields = ["firstName", "lastName", "emailId", "password", "age", "photoUrl", "gender", "skills"];
+  const allowedEditFields = ["firstName", "lastName", "emailId", "password", "age", "photoUrl", "gender", "skills", "linkedinUrl", "githubUrl"];
 
   
    const isEditAllowed = Object.keys(req.body).every((field) =>

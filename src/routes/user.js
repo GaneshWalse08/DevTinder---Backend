@@ -13,6 +13,8 @@ const USER_SAFE_DATA = [
   "photoUrl",
   "about",
   "skills",
+  "githubUrl",
+  "linkedinUrl"
 ];
 
 userRouter.get("/user/requests/received", userAuth, async (req, res) => {
@@ -59,7 +61,7 @@ userRouter.get("/user/feed", userAuth, async (req, res) => {
   const loggedInUser = req.user;
 
   let page = parseInt(req.query.page) || 1;
-  let limit = parseInt(req.query.limit) || 10;
+  let limit = parseInt(req.query.limit) || 15;
   const skip = (page-1)*limit;
 
   if(limit > 100 || limit <= 0){

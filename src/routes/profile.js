@@ -23,7 +23,7 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
       throw new Error("Invalid Edit Request!!");
     }
 
-    const { age, photoUrl, skills, gender } = req.body;
+    const { age, photoUrl, skills, gender, githubUrl, linkedinUrl } = req.body;
 
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
@@ -31,7 +31,9 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
         age,
         photoUrl,
         skills,
-        gender
+        gender,
+        githubUrl,
+        linkedinUrl,
       },
       { new: true, runValidators: true }
     );

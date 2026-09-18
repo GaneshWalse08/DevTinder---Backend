@@ -49,11 +49,20 @@ const userSchema = mongoose.Schema(
     },
     skills: {
       type: [String],
+      default: [],
       validate(value) {
         if (value.length >= 8) {
           throw new Error("You can add maximum 8 skills!");
         }
       },
+    },
+    githubUrl: {
+      type: String,
+      default: "",
+    },
+    linkedinUrl: {
+      type: String,
+      default: "",
     },
   },
   {

@@ -16,7 +16,7 @@ authRouter.post("/signup", async (req, res) => {
 
   // Encrypt the password
 
-  const {firstName, lastName, emailId, password, age, gender} = req.body;
+  const {firstName, lastName, emailId, password, age, gender, skills, githubUrl, linkedinUrl} = req.body;
 
   const hashPassword = await bcrypt.hash(password, 10);
 
@@ -28,7 +28,10 @@ authRouter.post("/signup", async (req, res) => {
       emailId,
       password: hashPassword,
       age,
-      gender
+      gender,
+      skills,
+      githubUrl,
+      linkedinUrl,
     });
 
     await user.save();
