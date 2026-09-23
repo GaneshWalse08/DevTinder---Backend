@@ -5,6 +5,9 @@ const User = require("../models/user");
 const validator = require('validator');
 const bcrypt = require('bcrypt');
 
+const upload = require("../middlewares/upload");
+const cloudinary = require("../config/cloudinary");
+
 const profileRouter = express.Router();
 
 profileRouter.get("/profile/view", userAuth, async (req, res) => {
@@ -62,5 +65,48 @@ profileRouter.patch("/profile/password", userAuth, async (req,res) =>{
     res.status(400).send(err.message);
   }
 })
+
+profileRouter.post(
+  "/profile/photoupload",
+  userAuth,
+  upload.single("photo"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          message: "Please select an image",
+        });
+      }
+
+      const result = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: "devtinder/profile",
+          },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+
+        uploadStream.end(req.file.buffer);
+      });
+
+      res.status(200).json({
+        message: "Photo uploaded successfully",
+        url: result.secure_url,
+      });
+    } catch (err) {
+      console.log("Photo upload error:", err);
+
+      res.status(500).json({
+        message: "Failed to upload photo",
+      });
+    }
+  }
+);
 
 module.exports = profileRouter;
