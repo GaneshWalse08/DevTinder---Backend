@@ -53,7 +53,7 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
 
     res.send(data);
   } catch (err) {
-    res.send(err.message);
+    res.status(400).send(err.message);
   }
 });
 

@@ -1,7 +1,7 @@
 const { Timestamp } = require("mongodb");
 const mongoose = require("mongoose");
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 const userSchema = mongoose.Schema(
   {
@@ -33,7 +33,7 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
       validate(value) {
-        if (!["male", "female", "others"]) {
+        if (!["Male", "Female", "Other"].includes(value)) {
           throw new Error("Gender data is not Valid!");
         }
       },
@@ -80,13 +80,16 @@ userSchema.methods.getJWT = async function () {
   return token;
 };
 
-userSchema.methods.validatePassword = async function(passwordInputByUser){
+userSchema.methods.validatePassword = async function (passwordInputByUser) {
   const user = this;
 
-  const isValidPassword = await bcrypt.compare(passwordInputByUser, user.password);
+  const isValidPassword = await bcrypt.compare(
+    passwordInputByUser,
+    user.password,
+  );
 
   return isValidPassword;
-}
+};
 
 const User = mongoose.model("User", userSchema);
 
