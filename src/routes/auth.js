@@ -37,8 +37,18 @@ authRouter.post("/signup", async (req, res) => {
     await user.save();
     res.send("User added!");
   } catch (err) {
-    res.status(400).send(err.message);
+  console.log(err);
+
+  if (err.code === 11000) {
+    return res.status(400).json({
+      message: "Email already registered. Please login!!.",
+    });
   }
+
+  return res.status(500).json({
+    message: "Something went wrong. Please try again.",
+  });
+}
 });
 
 authRouter.post("/login", async(req,res) => {
