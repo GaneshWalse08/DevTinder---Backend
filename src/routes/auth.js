@@ -1,26 +1,33 @@
 const express = require("express");
 const User = require("../models/user");
-const {validateSignUpData} = require("../utils/validation")
-const bcrypt = require('bcrypt');
-
+const { validateSignUpData } = require("../utils/validation");
+const bcrypt = require("bcrypt");
 
 const authRouter = express.Router();
 
 authRouter.post("/signup", async (req, res) => {
-
   try {
+    // Validate the user
 
-  // Validate the user 
+    validateSignUpData(req);
 
-  validateSignUpData(req);
+    // Encrypt the password
 
-  // Encrypt the password
+    const {
+      firstName,
+      lastName,
+      emailId,
+      password,
+      age,
+      gender,
+      skills,
+      githubUrl,
+      linkedinUrl,
+    } = req.body;
 
-  const {firstName, lastName, emailId, password, age, gender, skills, githubUrl, linkedinUrl} = req.body;
+    const hashPassword = await bcrypt.hash(password, 10);
 
-  const hashPassword = await bcrypt.hash(password, 10);
-
-  //Create the instance of the User and save
+    //Create the instance of the User and save
 
     const user = new User({
       firstName,
@@ -34,73 +41,71 @@ authRouter.post("/signup", async (req, res) => {
       linkedinUrl,
     });
 
-    await user.save();
-    res.send("User added!");
-  } catch (err) {
-  console.log(err);
+    const savedUser = await user.save();
+    const token = await savedUser.getJWT();
 
-  if (err.code === 11000) {
-    return res.status(400).json({
-      message: "Email already registered. Please login!!.",
+    // Add the token to cookie and send it to the user for authentication
+    res.cookie("token", token);
+
+    res.json({ message: "User added!", data: savedUser });
+  } catch (err) {
+    console.log(err);
+
+    if (err.code === 11000) {
+      return res.status(400).json({
+        message: "Email already registered. Please login!!.",
+      });
+    }
+
+    return res.status(500).json({
+      message: "Something went wrong. Please try again.",
     });
   }
-
-  return res.status(500).json({
-    message: "Something went wrong. Please try again.",
-  });
-}
 });
 
-authRouter.post("/login", async(req,res) => {
-  try{
+authRouter.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
 
-    const {emailId, password} = req.body;
+    const user = await User.findOne({ emailId });
 
-    const user = await User.findOne({emailId});
-
-    if(!user){
+    if (!user) {
       throw new Error("No Such User Found!!");
     }
 
     const isPasswordValid = await user.validatePassword(password);
-    if(isPasswordValid){
-      // Create a JWT token  
+    if (isPasswordValid) {
+      // Create a JWT token
 
       const token = await user.getJWT();
-      
-      
+
       // Add the token to cookie and send it to the user for authentication
       res.cookie("token", token);
 
       res.send(user);
     } else {
-       return res.status(400).send("Invalid Credentials!!");
+      return res.status(400).send("Invalid Credentials!!");
     }
-
-  }catch(err){
+  } catch (err) {
     // console.log(err.message);
     res.status(400).send("Invalid Credentials!!");
   }
-})
+});
 
-authRouter.post("/logout", (req,res) => {
-  try{
-
-    const {token} = req.cookies;
+authRouter.post("/logout", (req, res) => {
+  try {
+    const { token } = req.cookies;
 
     res.cookie("token", token, {
-      expires: new Date(Date.now())
-    })
+      expires: new Date(Date.now()),
+    });
 
-  // res.clearCookie("token");
-  
-  res.send("Logout Successful...");
-  
-} catch(err){
+    // res.clearCookie("token");
+
+    res.send("Logout Successful...");
+  } catch (err) {
     res.status(400).send(err.message);
   }
-} );
-
-
+});
 
 module.exports = authRouter;
